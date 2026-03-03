@@ -15,6 +15,9 @@ app.use(express.json());
 const authRoutes = require("./routes/auth");
 app.use("/api/auth", authRoutes);
 
+const noteRoutes = require("./routes/notes");
+app.use("/api/notes", noteRoutes);
+
 // Test route
 app.get("/", (req, res) => {
   res.send("MindNest API is running!");
