@@ -1,3 +1,5 @@
+import NoteCard from "../components/NoteCard";
+
 function Dashboard() {
   return (
     <div style={{ padding: "20px" }}>
@@ -29,13 +31,24 @@ function Dashboard() {
 
       {/* Notes Area */}
       <section style={{ marginTop: "20px" }}>
-        <h3>Your Notes</h3>
+  <h3>Your Notes</h3>
 
-        <div>
-          <p>No notes yet.</p>
-        </div>
+  <NoteCard
+    title="Struggled with React Routing"
+    content="Today I learned how BrowserRouter wraps the App component."
+    category="Study"
+    emotion="Motivated"
+    tags={["React", "Routing", "Learning"]}
+  />
 
-      </section>
+  <NoteCard
+    title="Internship Interview Reflection"
+    content="Need to improve DSA confidence."
+    category="Career"
+    emotion="Determined"
+    tags={["Internship", "DSA"]}
+  />
+</section>
 
     </div>
   );
