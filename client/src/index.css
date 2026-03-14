@@ -33,17 +33,17 @@
   color-scheme: dark;
   --primary: #10b981;
   --primary-hover: #34d399;
-  --surface: #1e293b;
-  --background-input: #0f172a;
-  --border: #334155;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --gradient-bg: linear-gradient(135deg, #020617, #0f172a);
+  --surface: #2d3748;
+  --background-input: #1a202c;
+  --border: #4a5568;
+  --text-main: #f7fafc;
+  --text-muted: #a0aec0;
+  --gradient-bg: linear-gradient(135deg, #1a202c, #2d3748);
   
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
-  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 body {
