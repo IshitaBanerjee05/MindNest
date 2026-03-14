@@ -19,6 +19,11 @@ const noteSchema = new mongoose.Schema(
       enum: ["Study", "Career", "Personal", "Ideas"],
       default: "Study"
     },
+    emotion: {
+      type: String,
+      enum: ["Happy", "Motivated", "Neutral", "Stressed"],
+      default: "Neutral"
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

@@ -1,8 +1,15 @@
-function NoteCard({ title, content, tags, category, emotion, onEdit, onDelete }) {
+function NoteCard({ title, content, tags, category, emotion, date, onEdit, onDelete }) {
     return (
         <div className="note-card">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <h3 style={{ margin: "0 0 12px 0", fontSize: "1.25rem", color: "var(--text-main)" }}>{title}</h3>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+                <div>
+                  <h3 style={{ margin: "0 0 4px 0", fontSize: "1.25rem", color: "var(--text-main)" }}>{title}</h3>
+                  {date && (
+                    <div style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                      {new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    </div>
+                  )}
+                </div>
                 <div style={{ display: "flex", gap: "10px" }}>
                     {onEdit && (
                         <button 
@@ -45,20 +52,40 @@ function NoteCard({ title, content, tags, category, emotion, onEdit, onDelete })
                     {category}
                 </div>
 
+                {emotion && emotion !== "Neutral" && (
+                     <div style={{ 
+                        display: "inline-flex", alignItems: "center", gap: "4px",
+                        padding: "4px 10px", backgroundColor: "rgba(245, 158, 11, 0.1)", borderRadius: "20px", 
+                        fontSize: "13px", color: "#d97706", fontWeight: "500"
+                    }}>
+                        {emotion === "Happy" && "😊 Happy"}
+                        {emotion === "Motivated" && "🚀 Motivated"}
+                        {emotion === "Stressed" && "😫 Stressed"}
+                    </div>
+                )}
+
                 {tags && tags.length > 0 && tags.map((tag, index) => (
-                    <span
+                    <button
                         key={index}
+                        onClick={() => {
+                            if (window.setSearchFilter) window.setSearchFilter(tag);
+                        }}
                         style={{
                             padding: "4px 10px",
                             backgroundColor: "rgba(16, 185, 129, 0.1)",
                             color: "var(--primary)",
                             borderRadius: "20px",
                             fontSize: "13px",
-                            fontWeight: "500"
+                            fontWeight: "500",
+                            border: "none",
+                            cursor: "pointer",
+                            transition: "background-color 0.2s ease"
                         }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "rgba(16, 185, 129, 0.2)"}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "rgba(16, 185, 129, 0.1)"}
                     >
                         #{tag}
-                    </span>
+                    </button>
                 ))}
             </div>
 

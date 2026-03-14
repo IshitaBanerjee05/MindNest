@@ -4,7 +4,10 @@ import axios from "axios";
 import NoteCard from "../components/NoteCard";
 
 function Dashboard() {
-  const [notes, setNotes] = useState([]);
+  const [notes, setNotes] = useState(() => {
+    const saved = localStorage.getItem("mindnest_notes");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -39,9 +42,32 @@ function Dashboard() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Study");
+  const [emotion, setEmotion] = useState("Neutral");
   const [tags, setTags] = useState("");
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("All");
+
+  // Theme logic
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  // Persist notes to localStorage
+  useEffect(() => {
+    localStorage.setItem("mindnest_notes", JSON.stringify(notes));
+  }, [notes]);
+
+  // Expose search filter globally for tag chips
+  useEffect(() => {
+    window.setSearchFilter = (tag) => {
+      setSearch(tag);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    return () => delete window.setSearchFilter;
+  }, []);
 
   const [isAdding, setIsAdding] = useState(false);
   const [error, setError] = useState("");
@@ -62,6 +88,7 @@ function Dashboard() {
         title,
         content,
         category,
+        emotion,
         tags: tags.split(",").map(t => t.trim()).filter(t => t !== "")
       };
       
@@ -88,6 +115,7 @@ function Dashboard() {
       setTitle("");
       setContent("");
       setCategory("Study");
+      setEmotion("Neutral");
       setTags("");
     } catch (err) {
       console.error("Error saving note:", err);
@@ -102,6 +130,7 @@ function Dashboard() {
     setTitle(note.title);
     setContent(note.content);
     setCategory(note.category);
+    setEmotion(note.emotion || "Neutral");
     setTags(note.tags ? note.tags.join(", ") : "");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -142,7 +171,21 @@ function Dashboard() {
     <div className="layout-container">
 
       {/* Header */}
-      <header style={{ marginBottom: "40px", textAlign: "center" }}>
+      <header style={{ marginBottom: "40px", position: "relative", textAlign: "center" }}>
+        <button 
+           onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+           style={{ 
+             position: "absolute", right: 0, top: 0, 
+             background: "var(--surface)", border: "1px solid var(--border)", 
+             borderRadius: "50%", width: "40px", height: "40px", 
+             display: "flex", alignItems: "center", justifyContent: "center",
+             cursor: "pointer", color: "var(--text-main)", boxShadow: "var(--shadow-sm)"
+           }}
+           aria-label="Toggle Dark Mode"
+        >
+          {theme === "light" ? "🌙" : "☀️"}
+        </button>
+
         <h1 style={{ color: "var(--primary)", margin: "0 0 8px 0", fontSize: "2.5rem", fontWeight: "700", letterSpacing: "-0.02em" }}>
           <span style={{ fontSize: "2.2rem", marginRight: "8px" }}>🌿</span>
           MindNest
@@ -211,7 +254,7 @@ function Dashboard() {
             <button 
               onClick={() => {
                 setEditingNoteId(null);
-                setTitle(""); setContent(""); setCategory("Study"); setTags("");
+                setTitle(""); setContent(""); setCategory("Study"); setEmotion("Neutral"); setTags("");
               }}
               style={{ float: "right", background: "none", border: "none", color: "#666", cursor: "pointer", fontSize: "14px" }}
             >
@@ -261,24 +304,43 @@ function Dashboard() {
           }}
         />
 
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "10px",
-            marginBottom: "12px",
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-            fontSize: "15px",
-            boxSizing: "border-box"
-          }}
-        >
-          <option value="Study">Study</option>
-          <option value="Career">Career</option>
-          <option value="Personal">Personal</option>
-          <option value="Ideas">Ideas</option>
-        </select>
+        <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            style={{
+              flex: 1,
+              padding: "14px",
+              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--border)",
+              fontSize: "15px",
+              boxSizing: "border-box"
+            }}
+          >
+            <option value="Study">📚 Study</option>
+            <option value="Career">💼 Career</option>
+            <option value="Personal">👤 Personal</option>
+            <option value="Ideas">💡 Ideas</option>
+          </select>
+
+          <select
+            value={emotion}
+            onChange={(e) => setEmotion(e.target.value)}
+            style={{
+              flex: 1,
+              padding: "14px",
+              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--border)",
+              fontSize: "15px",
+              boxSizing: "border-box"
+            }}
+          >
+            <option value="Happy">😊 Happy</option>
+            <option value="Motivated">🚀 Motivated</option>
+            <option value="Neutral">😐 Neutral</option>
+            <option value="Stressed">😫 Stressed</option>
+          </select>
+        </div>
 
         <input
           type="text"
@@ -326,9 +388,19 @@ function Dashboard() {
       </div>
 
       {/* Notes List */}
-      <h3 style={{ color: "var(--text-main)", fontSize: "1.25rem", marginBottom: "24px" }}>
-        Your Notes {notes.length > 0 ? `(${filteredNotes.length})` : ""}
-      </h3>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+        <h3 style={{ color: "var(--text-main)", fontSize: "1.25rem", margin: 0 }}>
+          Your Notes {notes.length > 0 ? `(${filteredNotes.length})` : ""}
+        </h3>
+        {search && (
+          <button 
+             onClick={() => setSearch("")}
+             style={{ background: "none", border: "none", color: "var(--primary)", cursor: "pointer", fontSize: "14px", fontWeight: "500", textDecoration: "underline" }}
+          >
+            Clear Search
+          </button>
+        )}
+      </div>
 
       {isLoading ? (
         <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)", backgroundColor: "var(--surface)", borderRadius: "var(--radius-md)", border: "1px dashed var(--border)" }}>
@@ -351,6 +423,7 @@ function Dashboard() {
             category={note.category}
             emotion={note.emotion}
             tags={note.tags}
+            date={note.createdAt}
             onEdit={() => handleEditClick(note)}
             onDelete={() => handleDeleteClick(note._id)}
           />

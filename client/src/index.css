@@ -6,9 +6,7 @@
   font-weight: 400;
 
   color-scheme: light;
-  color: #334155;
-  background-color: #f8fafc;
-
+  
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -17,9 +15,12 @@
   --primary: #10b981;
   --primary-hover: #059669;
   --surface: #ffffff;
+  --background-input: #f8fafc;
   --border: #e2e8f0;
   --text-main: #0f172a;
   --text-muted: #64748b;
+  --gradient-bg: linear-gradient(135deg, #eef7f2, #f4f6fb);
+  
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
@@ -28,12 +29,30 @@
   --radius-lg: 16px;
 }
 
+[data-theme='dark'] {
+  color-scheme: dark;
+  --primary: #10b981;
+  --primary-hover: #34d399;
+  --surface: #1e293b;
+  --background-input: #0f172a;
+  --border: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --gradient-bg: linear-gradient(135deg, #020617, #0f172a);
+  
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: var(--background);
-  background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
-  background-size: 24px 24px;
+  color: var(--text-main);
+  background: var(--gradient-bg);
+  background-attachment: fixed;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 * {
@@ -54,7 +73,8 @@ textarea,
 select {
   font-family: 'Inter', sans-serif;
   transition: all 0.2s ease;
-  background-color: #f8fafc;
+  background-color: var(--background-input);
+  color: var(--text-main);
 }
 
 input:focus,
@@ -63,7 +83,7 @@ select:focus {
   outline: none;
   border-color: var(--primary) !important;
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
-  background-color: #ffffff;
+  background-color: var(--surface);
 }
 
 /* Buttons */
