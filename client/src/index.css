@@ -14,11 +14,11 @@
 
   --primary: #f59e0b;
   --primary-hover: #d97706;
-  --surface: #ffffff;
-  --background-input: #f5f7fa;
-  --border: #e2e8f0;
-  --text-main: #111827;
-  --text-muted: #6b7280;
+  --surface: #fdf8f5; /* Light Creme Brown */
+  --background-input: #faf0e6;
+  --border: #e8dccb;
+  --text-main: #2d1a11;
+  --text-muted: #8b7355;
   --gradient-bg: #f5f7fa;
   --glass-blur: none;
   --glass-border: 1px solid var(--border);
