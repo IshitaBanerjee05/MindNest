@@ -1,25 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import NoteCard from "../components/NoteCard";
 
 function Dashboard() {
-  const [notes, setNotes] = useState([
-    {
-      id: 1,
-      title: "Struggled with React Routing",
-      content: "Today I learned how BrowserRouter wraps the App component.",
-      category: "Study",
-      emotion: "Motivated",
-      tags: ["React", "Routing", "Learning"]
-    },
-    {
-      id: 2,
-      title: "Internship Interview Reflection",
-      content: "Need to improve DSA confidence.",
-      category: "Career",
-      emotion: "Determined",
-      tags: ["Internship", "DSA"]
-    }
-  ]);
+  const [notes, setNotes] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchNotes = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/");
+        return;
+      }
+
+      try {
+        const res = await axios.get("http://localhost:5000/api/notes", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setNotes(res.data);
+      } catch (err) {
+        console.error("Error fetching notes:", err);
+        if (err.response?.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/");
+        }
+      }
+    };
+
+    fetchNotes();
+  }, [navigate]);
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -28,25 +39,43 @@ function Dashboard() {
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("All");
 
-  function handleAddNote() {
+  const [isAdding, setIsAdding] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleAddNote() {
     if (!title || !content) {
-      alert("Please fill in title and content!");
+      setError("Please fill in title and content!");
       return;
     }
 
-    const newNote = {
-      id: Date.now(),
-      title,
-      content,
-      category,
-      tags: tags.split(",").map(t => t.trim()).filter(t => t !== "")
-    };
+    try {
+      setIsAdding(true);
+      setError("");
+      
+      const token = localStorage.getItem("token");
+      const res = await axios.post("http://localhost:5000/api/notes", {
+        title,
+        content,
+        category,
+        tags: tags.split(",").map(t => t.trim()).filter(t => t !== "")
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-    setNotes([newNote, ...notes]);
-    setTitle("");
-    setContent("");
-    setCategory("Study");
-    setTags("");
+      // Add the new note to the top of the list
+      setNotes([res.data, ...notes]);
+      
+      // Reset form
+      setTitle("");
+      setContent("");
+      setCategory("Study");
+      setTags("");
+    } catch (err) {
+      console.error("Error adding note:", err);
+      setError("Failed to add note. Please try again.");
+    } finally {
+      setIsAdding(false);
+    }
   }
 
   // Filter logic
@@ -115,6 +144,13 @@ function Dashboard() {
         marginBottom: "30px"
       }}>
         <h3 style={{ marginTop: 0, color: "#333" }}>Add New Thought</h3>
+
+        {/* Error Message */}
+        {error && (
+          <div style={{ color: "red", backgroundColor: "#ffebee", padding: "10px", borderRadius: "8px", marginBottom: "16px" }}>
+            {error}
+          </div>
+        )}
 
         <input
           type="text"
@@ -186,17 +222,18 @@ function Dashboard() {
 
         <button
           onClick={handleAddNote}
+          disabled={isAdding}
           style={{
-            backgroundColor: "#2e7d32",
+            backgroundColor: isAdding ? "#a5d6a7" : "#2e7d32",
             color: "#fff",
             border: "none",
             padding: "12px 24px",
             borderRadius: "8px",
             fontSize: "15px",
-            cursor: "pointer"
+            cursor: isAdding ? "not-allowed" : "pointer"
           }}
         >
-          + Add Note
+          {isAdding ? "Adding..." : "+ Add Note"}
         </button>
       </div>
 
