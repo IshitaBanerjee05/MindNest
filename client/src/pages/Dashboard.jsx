@@ -5,6 +5,7 @@ import NoteCard from "../components/NoteCard";
 
 function Dashboard() {
   const [notes, setNotes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,6 +17,7 @@ function Dashboard() {
       }
 
       try {
+        setIsLoading(true);
         const res = await axios.get("http://localhost:5000/api/notes", {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -26,6 +28,8 @@ function Dashboard() {
           localStorage.removeItem("token");
           navigate("/");
         }
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -322,12 +326,22 @@ function Dashboard() {
       </div>
 
       {/* Notes List */}
-      <h3 style={{ color: "#333" }}>Your Notes ({filteredNotes.length})</h3>
+      <h3 style={{ color: "var(--text-main)", fontSize: "1.25rem", marginBottom: "24px" }}>
+        Your Notes {notes.length > 0 ? `(${filteredNotes.length})` : ""}
+      </h3>
 
-      {filteredNotes.length === 0 ? (
-        <p style={{ color: "#999", textAlign: "center", marginTop: "40px" }}>
-          No notes found. Try a different search or add a new one!
-        </p>
+      {isLoading ? (
+        <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)", backgroundColor: "var(--surface)", borderRadius: "var(--radius-md)", border: "1px dashed var(--border)" }}>
+          <svg style={{ animation: "logo-spin 1s linear infinite", marginBottom: "16px" }} width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="4.93" x2="19.07" y2="7.76"></line></svg>
+          <p style={{ margin: 0, fontWeight: "500", fontSize: "1.05rem" }}>Loading your thoughts...</p>
+        </div>
+      ) : filteredNotes.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "60px 20px", backgroundColor: "var(--surface)", borderRadius: "var(--radius-md)", border: "1px dashed var(--border)" }}>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--border)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: "16px" }}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <p style={{ color: "var(--text-muted)", margin: 0, fontSize: "1.05rem", fontWeight: "500" }}>
+            {notes.length === 0 ? "You haven't added any notes yet. Create your first thought above!" : "No notes found matching your search. Try adjusting your filters."}
+          </p>
+        </div>
       ) : (
         filteredNotes.map(note => (
           <NoteCard
