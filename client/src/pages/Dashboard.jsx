@@ -135,7 +135,7 @@ function Dashboard() {
 });
 
   return (
-    <div style={{ maxWidth: "800px", margin: "0 auto", padding: "40px 20px" }}>
+    <div className="layout-container">
 
       {/* Header */}
       <header style={{ marginBottom: "40px", textAlign: "center" }}>
@@ -147,7 +147,7 @@ function Dashboard() {
       </header>
 
       {/* Search + Filter Bar */}
-      <div style={{ display: "flex", gap: "16px", marginBottom: "32px", position: "sticky", top: "20px", zIndex: 10 }}>
+      <div className="search-filter-bar">
         <div style={{ position: "relative", flex: 1 }}>
           <svg style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <input
@@ -193,15 +193,10 @@ function Dashboard() {
       </div>
 
       {/* Add Note Form */}
-      <div style={{
-        backgroundColor: "var(--surface)",
-        padding: "32px",
-        borderRadius: "var(--radius-lg)",
-        boxShadow: "var(--shadow-card)",
-        marginBottom: "40px",
-        border: editingNoteId ? "2px solid var(--primary)" : "1px solid var(--border)",
-        transition: "all 0.3s ease"
-      }}>
+      <div 
+        className="form-container"
+        style={{ border: editingNoteId ? "2px solid var(--primary)" : "1px solid var(--border)" }}
+      >
         <h3 style={{ marginTop: 0, marginBottom: "24px", color: "var(--text-main)", fontSize: "1.25rem", display: "flex", alignItems: "center", gap: "8px" }}>
           {editingNoteId ? (
             <><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> Edit Thought</>

@@ -37,15 +37,7 @@ function Login() {
       padding: "20px"
     }}>
 
-      <div style={{
-        backgroundColor: "var(--surface)",
-        padding: "40px",
-        borderRadius: "var(--radius-lg)",
-        boxShadow: "var(--shadow-lg)",
-        width: "100%",
-        maxWidth: "420px",
-        border: "1px solid var(--border)"
-      }}>
+      <div className="login-container">
 
         {/* Logo / Title */}
         <div style={{ textAlign: "center", marginBottom: "32px" }}>

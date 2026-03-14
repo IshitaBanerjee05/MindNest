@@ -98,3 +98,79 @@ button:not(:disabled):active {
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+/* --- Responsive Classes --- */
+
+.layout-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.search-filter-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+  position: sticky;
+  top: 20px;
+  z-index: 10;
+}
+
+.form-container {
+  background-color: var(--surface);
+  padding: 32px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  margin-bottom: 40px;
+  transition: border-color 0.3s ease;
+}
+
+.note-card {
+  padding: 24px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  transition: all 0.2s ease;
+}
+
+.note-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.login-container {
+  background-color: var(--surface);
+  padding: 40px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid var(--border);
+}
+
+/* Mobile Overrides */
+@media (max-width: 640px) {
+  .layout-container {
+    padding: 24px 16px;
+  }
+  
+  .search-filter-bar {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .form-container, .note-card {
+    padding: 20px 16px;
+  }
+
+  .login-container {
+    padding: 32px 20px;
+  }
+
+  header h1 {
+    font-size: 2rem !important;
+  }
+}

@@ -1,24 +1,6 @@
 function NoteCard({ title, content, tags, category, emotion, onEdit, onDelete }) {
     return (
-        <div style={{
-            padding: "20px",
-            borderRadius: "var(--radius-md)",
-            marginBottom: "20px",
-            backgroundColor: "var(--surface)",
-            boxShadow: "var(--shadow-sm)",
-            border: "1px solid var(--border)",
-            color: "var(--text-main)",
-            transition: "all 0.2s ease"
-        }}
-        onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-        }}
-        onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-        }}
-        >
+        <div className="note-card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <h3 style={{ margin: "0 0 12px 0", fontSize: "1.25rem", color: "var(--text-main)" }}>{title}</h3>
                 <div style={{ display: "flex", gap: "10px" }}>
