@@ -31,8 +31,8 @@
 
 [data-theme='dark'] {
   color-scheme: dark;
-  --primary: #10b981;
-  --primary-hover: #34d399;
+  --primary: #d97706; /* Warm Amber */
+  --primary-hover: #b45309;
   --surface: #261a15;
   --background-input: #1a110e;
   --border: #3d2b24;
