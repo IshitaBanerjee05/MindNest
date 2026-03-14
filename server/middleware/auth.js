@@ -21,22 +21,4 @@ function authMiddleware(req, res, next) {
 }
 
 module.exports = authMiddleware;
-
-module.exports = authMiddleware;
-```
-
----
-
-**What this does:**
-
-Every time someone tries to access a note route, this middleware runs first and checks:
-
-Request comes in
-      ↓
-Is there a token in the header?
-      ↓
-Is the token valid?
-      ↓
-Yes → attach userId to request → allow through
-No  → reject with 401 Unauthorized
-```
+
