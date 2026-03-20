@@ -219,15 +219,6 @@ Authorization: Bearer <your_jwt_token>
 
 ---
 
-## 🗓️ Development Roadmap
-
-- [x] Week 1 — React frontend with routing, components, search and filter
-- [x] Week 2 — Express backend, MongoDB models, JWT auth, CRUD API
-- [x] Week 3 — Frontend-backend integration, Axios, responsive design
-- [x] Week 4 — Dark mode, emotion tracking, offline caching, UI polish
-
----
-
 ## 👩‍💻 Author
 
 **Ishita Banerjee**
