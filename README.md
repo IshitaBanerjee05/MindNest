@@ -236,6 +236,15 @@ Authorization: Bearer <your_jwt_token>
 
 ---
 
+## 🔮 Future Improvements
+
+- AI-powered note suggestions
+- Voice-to-text capture for faster note creation
+- Collaborative note sharing between users
+- Advanced analytics (weekly insights, mood trends)
+  
+---
+
 ## 👩‍💻 Author
 
 **Ishita Banerjee**
