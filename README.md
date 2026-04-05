@@ -219,6 +219,15 @@ Authorization: Bearer <your_jwt_token>
 
 ---
 
+## ⚡ Challenges Faced
+
+- Designing a flexible tag-based schema in MongoDB
+- Managing JWT authentication securely across frontend and backend
+- Implementing real-time search across multiple fields
+- Handling state synchronization with localStorage caching
+  
+---
+
 ## 💼 Resume Description
 
 > **MindNest — Personal Knowledge & Reflection System** | MERN Stack
