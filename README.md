@@ -34,6 +34,14 @@ MindNest focuses on **fast capture and smart retrieval**. No folders. No complex
 - 📅 **Date Tracking** — Every note displays a human-readable creation date automatically parsed from MongoDB.
 
 ---
+🚀 Key Highlights
+
+- Full-stack MERN architecture
+- JWT-based secure authentication
+- Tag-based flexible data modeling using MongoDB
+- Real-time search and filtering
+- Offline-first experience with localStorage caching
+---
 
 ## 🛠️ Tech Stack
 
