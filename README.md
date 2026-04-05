@@ -1,6 +1,6 @@
 # 🌿 MindNest — Personal Knowledge & Reflection System
 
-> A safe digital nest for your thoughts, learning, and emotions.
+> MindNest is a full-stack MERN application designed to capture, organize, and retrieve personal knowledge and reflections efficiently. It combines fast note-taking with tag-based retrieval and emotional context tracking.
 
 ![MindNest](https://img.shields.io/badge/Stack-MERN-green?style=for-the-badge)
 ![JWT](https://img.shields.io/badge/Auth-JWT-blue?style=for-the-badge)
