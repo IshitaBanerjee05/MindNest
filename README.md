@@ -15,8 +15,11 @@ MindNest is a lightweight, full-stack personal knowledge management system built
 
 MindNest focuses on **fast capture and smart retrieval**. No folders. No complex hierarchy. Just write, tag, and find.
 
-![MindNest Dashboard](./screenshot.png)
+## 📸 Screenshots
 
+| Login | Light Mode | Dark Mode |
+|:---:|:---:|:---:|
+| ![Login](Login.png) | ![Dashboard Light](lightmode.png) | ![Dashboard Dark](darkmode.png) |
 ---
 
 ## ✨ Features
