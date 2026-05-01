@@ -1,4 +1,32 @@
-function NoteCard({ title, content, tags, category, emotion, date, onEdit, onDelete }) {
+function NoteCard({ title, content, tags, category, emotion, date, deadline, onEdit, onDelete }) {
+
+    // Compute deadline status
+    let deadlineLabel = null;
+    let deadlineStyle = {};
+    if (deadline) {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        const dl = new Date(deadline);
+        dl.setHours(0, 0, 0, 0);
+        const diffDays = Math.ceil((dl - now) / (1000 * 60 * 60 * 24));
+
+        const formatted = dl.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+        if (diffDays < 0) {
+            deadlineLabel = `Overdue · ${formatted}`;
+            deadlineStyle = { backgroundColor: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" };
+        } else if (diffDays === 0) {
+            deadlineLabel = `Due today · ${formatted}`;
+            deadlineStyle = { backgroundColor: "#fffbeb", color: "#d97706", border: "1px solid #fde68a" };
+        } else if (diffDays <= 3) {
+            deadlineLabel = `Due in ${diffDays}d · ${formatted}`;
+            deadlineStyle = { backgroundColor: "#fffbeb", color: "#d97706", border: "1px solid #fde68a" };
+        } else {
+            deadlineLabel = `Due ${formatted}`;
+            deadlineStyle = { backgroundColor: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0" };
+        }
+    }
+
     return (
         <div className="note-card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
@@ -42,7 +70,24 @@ function NoteCard({ title, content, tags, category, emotion, date, onEdit, onDel
 
             <p style={{ marginTop: 0, color: "var(--text-muted)", lineHeight: "1.6" }}>{content}</p>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: "16px", flexWrap: "wrap" }}>
+            {/* Deadline Badge */}
+            {deadlineLabel && (
+                <div style={{
+                    display: "inline-flex", alignItems: "center", gap: "6px",
+                    padding: "6px 12px", borderRadius: "20px",
+                    fontSize: "13px", fontWeight: "600",
+                    marginBottom: "12px",
+                    ...deadlineStyle
+                }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    {deadlineLabel}
+                </div>
+            )}
+
+            <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: deadlineLabel ? "4px" : "16px", flexWrap: "wrap" }}>
                 <div style={{ 
                     display: "inline-flex", alignItems: "center", gap: "6px",
                     padding: "4px 10px", backgroundColor: "#fdf8f5", borderRadius: "20px", 

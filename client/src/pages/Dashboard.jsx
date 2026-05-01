@@ -54,6 +54,7 @@ function Dashboard() {
   const [category, setCategory] = useState("Study");
   const [emotion, setEmotion] = useState("Neutral");
   const [tags, setTags] = useState("");
+  const [deadline, setDeadline] = useState("");
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("All");
 
@@ -100,7 +101,8 @@ function Dashboard() {
         content,
         category,
         emotion,
-        tags: tags.split(",").map(t => t.trim()).filter(t => t !== "")
+        tags: tags.split(",").map(t => t.trim()).filter(t => t !== ""),
+        deadline: deadline || null
       };
       
       if (editingNoteId) {
@@ -128,6 +130,7 @@ function Dashboard() {
       setCategory("Study");
       setEmotion("Neutral");
       setTags("");
+      setDeadline("");
 
       // Provide success feedback
       setSuccessMsg(editingNoteId ? "Thought updated successfully!" : "Thought safely added to your nest!");
@@ -148,6 +151,7 @@ function Dashboard() {
     setCategory(note.category);
     setEmotion(note.emotion || "Neutral");
     setTags(note.tags ? note.tags.join(", ") : "");
+    setDeadline(note.deadline ? new Date(note.deadline).toISOString().split("T")[0] : "");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -270,7 +274,7 @@ function Dashboard() {
             <button 
               onClick={() => {
                 setEditingNoteId(null);
-                setTitle(""); setContent(""); setCategory("Study"); setEmotion("Neutral"); setTags("");
+                setTitle(""); setContent(""); setCategory("Study"); setEmotion("Neutral"); setTags(""); setDeadline("");
               }}
               style={{ float: "right", background: "none", border: "none", color: "#666", cursor: "pointer", fontSize: "14px" }}
             >
@@ -380,13 +384,56 @@ function Dashboard() {
           style={{
             width: "100%",
             padding: "16px",
-            marginBottom: "24px",
+            marginBottom: "20px",
             borderRadius: "var(--radius-md)",
-            border: "1px solid #ccc",
+            border: "1px solid var(--border)",
             fontSize: "15px",
             boxSizing: "border-box"
           }}
         />
+
+        {/* Deadline Field */}
+        <div style={{ marginBottom: "24px" }}>
+          <label style={{
+            display: "flex", alignItems: "center", gap: "6px",
+            marginBottom: "8px", color: "var(--text-muted)", fontWeight: "500", fontSize: "0.9rem"
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            Deadline (optional)
+          </label>
+          <input
+            type="date"
+            value={deadline}
+            onChange={(e) => setDeadline(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "16px",
+              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--border)",
+              fontSize: "15px",
+              boxSizing: "border-box",
+              backgroundColor: "var(--background-input)",
+              color: "var(--text-main)",
+              fontFamily: "'Inter', sans-serif"
+            }}
+          />
+          {deadline && (
+            <button
+              type="button"
+              onClick={() => setDeadline("")}
+              style={{
+                background: "none", border: "none", color: "var(--text-muted)",
+                cursor: "pointer", fontSize: "13px", marginTop: "6px", padding: 0,
+                textDecoration: "underline"
+              }}
+            >
+              Remove deadline
+            </button>
+          )}
+        </div>
 
         <button
           onClick={handleAddNote}
@@ -439,6 +486,7 @@ function Dashboard() {
             emotion={note.emotion}
             tags={note.tags}
             date={note.createdAt}
+            deadline={note.deadline}
             onEdit={() => handleEditClick(note)}
             onDelete={() => handleDeleteClick(note._id)}
           />

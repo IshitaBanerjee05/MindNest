@@ -20,13 +20,15 @@ router.get("/", async (req, res) => {
 // Create a note
 router.post("/", async (req, res) => {
   try {
-    const { title, content, tags, category } = req.body;
+    const { title, content, tags, category, emotion, deadline } = req.body;
 
     const note = await Note.create({
       title,
       content,
       tags,
       category,
+      emotion,
+      deadline: deadline || null,
       userId: req.userId
     });
 

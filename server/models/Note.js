@@ -24,6 +24,10 @@ const noteSchema = new mongoose.Schema(
       enum: ["Happy", "Motivated", "Neutral", "Stressed"],
       default: "Neutral"
     },
+    deadline: {
+      type: Date,
+      default: null
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
