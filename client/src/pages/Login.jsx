@@ -7,7 +7,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ function Login() {
     setEmail("");
     setPassword("");
     setConfirmPassword("");
-    setError("");
+    setErrors({});
     setSuccess("");
   }
 
@@ -27,24 +27,26 @@ function Login() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError("");
+    setErrors({});
     setSuccess("");
 
-    // Basic validation
-    if (!email.trim() || !password.trim()) {
-      setError("Please fill in all fields.");
-      return;
-    }
+    // Inline validation
+    let validationErrors = {};
+    if (!email.trim()) validationErrors.email = "Email is required.";
+    if (!password.trim()) validationErrors.password = "Password is required.";
 
     if (isSignUp) {
-      if (password.length < 6) {
-        setError("Password must be at least 6 characters.");
-        return;
+      if (password && password.length < 6) {
+        validationErrors.password = "Password must be at least 6 characters.";
       }
       if (password !== confirmPassword) {
-        setError("Passwords do not match.");
-        return;
+        validationErrors.confirmPassword = "Passwords do not match.";
       }
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
     }
 
     try {
@@ -76,7 +78,7 @@ function Login() {
         navigate("/dashboard");
       }
     } catch (err) {
-      setError(err.response?.data?.message || (isSignUp ? "Registration failed" : "Login failed"));
+      setErrors({ general: err.response?.data?.message || (isSignUp ? "Registration failed" : "Login failed") });
     } finally {
       setLoading(false);
     }
@@ -96,16 +98,15 @@ function Login() {
   );
 
   return (
-    <div style={{
+    <div className="animate-fade-up" style={{
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      height: "100vh",
-      backgroundColor: "var(--background)",
+      minHeight: "100vh",
       padding: "20px"
     }}>
 
-      <div className="login-container" style={{ transition: "all 0.3s ease" }}>
+      <div className="login-container" style={{ transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)", overflow: "hidden" }}>
 
         {/* Logo / Title */}
         <div style={{ textAlign: "center", marginBottom: "28px" }}>
@@ -175,8 +176,8 @@ function Login() {
           </button>
         </div>
 
-        {/* Error Message */}
-        {error && (
+        {/* General Error Message */}
+        {errors.general && (
           <div style={{
             color: "#ef4444",
             backgroundColor: "#fef2f2",
@@ -189,7 +190,7 @@ function Login() {
             border: "1px solid #fecaca",
             animation: "fadeSlideIn 0.25s ease"
           }}>
-            {error}
+            {errors.general}
           </div>
         )}
 
@@ -213,7 +214,7 @@ function Login() {
 
         <form onSubmit={handleSubmit}>
           {/* Email Field */}
-          <div style={{ marginBottom: "20px" }}>
+          <div style={{ marginBottom: errors.email ? "8px" : "20px" }}>
             <label style={{ display: "block", marginBottom: "8px", color: "var(--text-main)", fontWeight: "500", fontSize: "0.95rem" }}>
               Email
             </label>
@@ -228,15 +229,16 @@ function Login() {
                 width: "100%",
                 padding: "12px 16px",
                 borderRadius: "var(--radius-md)",
-                border: "1px solid var(--border)",
+                border: errors.email ? "1px solid #ef4444" : "1px solid var(--border)",
                 fontSize: "15px",
                 boxSizing: "border-box"
               }}
             />
           </div>
+          {errors.email && <div style={{ color: "#ef4444", fontSize: "0.85rem", marginBottom: "16px", animation: "fadeSlideIn 0.2s ease" }}>{errors.email}</div>}
 
           {/* Password Field */}
-          <div style={{ marginBottom: isSignUp ? "20px" : "32px" }}>
+          <div style={{ marginBottom: errors.password ? "8px" : (isSignUp ? "20px" : "32px") }}>
             <label style={{ display: "block", marginBottom: "8px", color: "var(--text-main)", fontWeight: "500", fontSize: "0.95rem" }}>
               Password
             </label>
@@ -251,39 +253,43 @@ function Login() {
                 width: "100%",
                 padding: "12px 16px",
                 borderRadius: "var(--radius-md)",
-                border: "1px solid var(--border)",
+                border: errors.password ? "1px solid #ef4444" : "1px solid var(--border)",
                 fontSize: "15px",
                 boxSizing: "border-box"
               }}
             />
           </div>
+          {errors.password && <div style={{ color: "#ef4444", fontSize: "0.85rem", marginBottom: isSignUp ? "16px" : "32px", animation: "fadeSlideIn 0.2s ease" }}>{errors.password}</div>}
 
           {/* Confirm Password Field (Sign Up only) */}
           {isSignUp && (
-            <div style={{
-              marginBottom: "32px",
-              animation: "fadeSlideIn 0.3s ease"
-            }}>
-              <label style={{ display: "block", marginBottom: "8px", color: "var(--text-main)", fontWeight: "500", fontSize: "0.95rem" }}>
-                Confirm Password
-              </label>
-              <input
-                id="login-confirm-password"
-                type="password"
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                autoComplete="new-password"
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  borderRadius: "var(--radius-md)",
-                  border: "1px solid var(--border)",
-                  fontSize: "15px",
-                  boxSizing: "border-box"
-                }}
-              />
-            </div>
+            <>
+              <div style={{
+                marginBottom: errors.confirmPassword ? "8px" : "32px",
+                animation: "fadeSlideIn 0.3s ease"
+              }}>
+                <label style={{ display: "block", marginBottom: "8px", color: "var(--text-main)", fontWeight: "500", fontSize: "0.95rem" }}>
+                  Confirm Password
+                </label>
+                <input
+                  id="login-confirm-password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  autoComplete="new-password"
+                  style={{
+                    width: "100%",
+                    padding: "12px 16px",
+                    borderRadius: "var(--radius-md)",
+                    border: errors.confirmPassword ? "1px solid #ef4444" : "1px solid var(--border)",
+                    fontSize: "15px",
+                    boxSizing: "border-box"
+                  }}
+                />
+              </div>
+              {errors.confirmPassword && <div style={{ color: "#ef4444", fontSize: "0.85rem", marginBottom: "32px", animation: "fadeSlideIn 0.2s ease" }}>{errors.confirmPassword}</div>}
+            </>
           )}
 
           {/* Submit Button */}

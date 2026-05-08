@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import NoteCard from "../components/NoteCard";
@@ -53,10 +53,36 @@ function Dashboard() {
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Study");
   const [emotion, setEmotion] = useState("Neutral");
-  const [tags, setTags] = useState("");
+  const [tags, setTags] = useState([]);
   const [deadline, setDeadline] = useState("");
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("All");
+
+  const [randomPromptIndex, setRandomPromptIndex] = useState(0);
+  const titleInputRef = useRef(null);
+
+  const [isAdding, setIsAdding] = useState(false);
+  const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+  const [editingNoteId, setEditingNoteId] = useState(null);
+
+  useEffect(() => {
+    setRandomPromptIndex(Math.floor(Math.random() * REFLECTION_PROMPTS.length));
+  }, []);
+
+  useEffect(() => {
+    if (!editingNoteId && titleInputRef.current) {
+      titleInputRef.current.focus();
+    }
+  }, [editingNoteId]);
+
+  const shufflePrompt = () => {
+    let nextIdx;
+    do {
+      nextIdx = Math.floor(Math.random() * REFLECTION_PROMPTS.length);
+    } while (nextIdx === randomPromptIndex);
+    setRandomPromptIndex(nextIdx);
+  };
 
   // Theme logic
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
@@ -80,10 +106,6 @@ function Dashboard() {
     return () => delete window.setSearchFilter;
   }, []);
 
-  const [isAdding, setIsAdding] = useState(false);
-  const [error, setError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
-  const [editingNoteId, setEditingNoteId] = useState(null);
 
   async function handleAddNote() {
     if (!title || !content) {
@@ -101,7 +123,7 @@ function Dashboard() {
         content,
         category,
         emotion,
-        tags: tags.split(",").map(t => t.trim()).filter(t => t !== ""),
+        tags: tags,
         deadline: deadline || null
       };
       
@@ -129,7 +151,7 @@ function Dashboard() {
       setContent("");
       setCategory("Study");
       setEmotion("Neutral");
-      setTags("");
+      setTags([]);
       setDeadline("");
 
       // Provide success feedback
@@ -150,7 +172,7 @@ function Dashboard() {
     setContent(note.content);
     setCategory(note.category);
     setEmotion(note.emotion || "Neutral");
-    setTags(note.tags ? note.tags.join(", ") : "");
+    setTags(note.tags || []);
     setDeadline(note.deadline ? new Date(note.deadline).toISOString().split("T")[0] : "");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -177,9 +199,9 @@ function Dashboard() {
   const searchLower = search.toLowerCase();
 
   const matchesSearch =
-    note.title.toLowerCase().includes(searchLower) ||
-    note.content.toLowerCase().includes(searchLower) ||
-    note.tags.some(tag => tag.toLowerCase().includes(searchLower));
+    (note.title || "").toLowerCase().includes(searchLower) ||
+    (note.content || "").toLowerCase().includes(searchLower) ||
+    (note.tags || []).some(tag => tag && tag.toLowerCase().includes(searchLower));
 
   const matchesCategory =
     filterCategory === "All" || note.category === filterCategory;
@@ -187,8 +209,41 @@ function Dashboard() {
   return matchesSearch && matchesCategory;
 });
 
+  const handleTagInput = (e) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      const val = e.target.value.trim();
+      if (val && !tags.includes(val)) {
+        setTags([...tags, val]);
+      }
+      e.target.value = "";
+    } else if (e.key === "Backspace" && !e.target.value && tags.length > 0) {
+      setTags(tags.slice(0, -1));
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    setTags(tags.filter(t => t !== tagToRemove));
+  };
+
   return (
-    <div className="layout-container">
+    <div className="layout-container animate-fade-up">
+
+      {/* Toasts */}
+      <div style={{ position: "fixed", bottom: "24px", right: "24px", zIndex: 50, display: "flex", flexDirection: "column", gap: "12px", pointerEvents: "none" }}>
+        {error && (
+          <div style={{ color: "#ef4444", backgroundColor: "#fef2f2", padding: "16px", borderRadius: "12px", border: "1px solid #fecaca", boxShadow: "var(--shadow-md)", animation: "fadeSlideIn 0.3s ease", display: "flex", alignItems: "center", gap: "8px", fontWeight: "500", pointerEvents: "auto" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            {error}
+          </div>
+        )}
+        {successMsg && (
+          <div style={{ color: "#16a34a", backgroundColor: "#f0fdf4", padding: "16px", borderRadius: "12px", border: "1px solid #bbf7d0", boxShadow: "var(--shadow-md)", animation: "fadeSlideIn 0.3s ease", display: "flex", alignItems: "center", gap: "8px", fontWeight: "500", pointerEvents: "auto" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            {successMsg}
+          </div>
+        )}
+      </div>
 
       {/* Header */}
       <header style={{ marginBottom: "56px", position: "relative", textAlign: "center" }}>
@@ -259,6 +314,38 @@ function Dashboard() {
         </div>
       </div>
 
+      {/* Daily Reflection Card */}
+      <div style={{
+        backgroundColor: "var(--surface)",
+        padding: "24px",
+        borderRadius: "var(--radius-lg)",
+        boxShadow: "var(--shadow-md)",
+        border: "var(--glass-border)",
+        marginBottom: "32px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "8px"
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h3 style={{ margin: 0, color: "var(--primary)", fontSize: "1.1rem", display: "flex", alignItems: "center", gap: "8px" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            Today's Reflection
+          </h3>
+          <button 
+            onClick={shufflePrompt}
+            style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", color: "var(--text-muted)", fontSize: "14px", transition: "transform 0.2s ease" }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "var(--primary)"; e.currentTarget.style.transform = "rotate(15deg)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; e.currentTarget.style.transform = "rotate(0deg)"; }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            Shuffle
+          </button>
+        </div>
+        <p style={{ margin: 0, fontSize: "1.15rem", fontWeight: "500", color: "var(--text-main)" }}>
+          {REFLECTION_PROMPTS[randomPromptIndex]}
+        </p>
+      </div>
+
       {/* Add Note Form */}
       <div 
         className="form-container"
@@ -283,26 +370,15 @@ function Dashboard() {
           )}
         </h3>
 
-        {/* Error Message */}
-        {error && (
-          <div style={{ color: "red", backgroundColor: "#ffebee", padding: "10px", borderRadius: "8px", marginBottom: "16px" }}>
-            {error}
-          </div>
-        )}
 
-        {/* Success Message */}
-        {successMsg && (
-          <div style={{ color: "var(--primary)", backgroundColor: "rgba(16, 185, 129, 0.1)", padding: "12px", borderRadius: "var(--radius-md)", marginBottom: "20px", border: "1px solid var(--primary)", fontWeight: "500", display: "flex", alignItems: "center", gap: "8px" }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-            {successMsg}
-          </div>
-        )}
 
         <input
+          ref={titleInputRef}
           type="text"
           placeholder="Title of your thought..."
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddNote(); } }}
           style={{
             width: "100%",
             padding: "16px",
@@ -314,16 +390,11 @@ function Dashboard() {
           }}
         />
 
-        {!editingNoteId && (
-          <div style={{ marginBottom: "8px", fontSize: "13.5px", color: "var(--primary)", fontWeight: "500", display: "flex", gap: "6px", alignItems: "center" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            Prompt: {REFLECTION_PROMPTS[new Date().getDay()]}
-          </div>
-        )}
         <textarea
           placeholder="Start writing here..."
           value={content}
           onChange={(e) => setContent(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); handleAddNote(); } }}
           rows={4}
           style={{
             width: "100%",
@@ -357,40 +428,80 @@ function Dashboard() {
             <option value="Ideas">💡 Ideas</option>
           </select>
 
-          <select
-            value={emotion}
-            onChange={(e) => setEmotion(e.target.value)}
-            style={{
-              flex: 1,
-              padding: "16px",
-              borderRadius: "var(--radius-md)",
-              border: "1px solid var(--border)",
-              fontSize: "15px",
-              boxSizing: "border-box"
-            }}
-          >
-            <option value="Happy">😊 Happy</option>
-            <option value="Motivated">🚀 Motivated</option>
-            <option value="Neutral">😐 Neutral</option>
-            <option value="Stressed">😫 Stressed</option>
-          </select>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px" }}>
+            <div style={{ display: "flex", gap: "8px", height: "100%", alignItems: "flex-end" }}>
+              {[
+                { value: "Happy", emoji: "😊" },
+                { value: "Motivated", emoji: "🚀" },
+                { value: "Neutral", emoji: "😐" },
+                { value: "Stressed", emoji: "😫" }
+              ].map((em) => (
+                <button
+                  key={em.value}
+                  type="button"
+                  onClick={() => setEmotion(em.value)}
+                  style={{
+                    flex: 1,
+                    padding: "8px",
+                    borderRadius: "var(--radius-md)",
+                    border: emotion === em.value ? "2px solid var(--primary)" : "1px solid var(--border)",
+                    backgroundColor: emotion === em.value ? "var(--primary-glow)" : "var(--background-input)",
+                    fontSize: "22px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "all 0.2s ease",
+                    transform: emotion === em.value ? "scale(1.05)" : "scale(1)",
+                    boxShadow: emotion === em.value ? "0 0 12px var(--primary-glow)" : "none",
+                    height: "54px"
+                  }}
+                  title={em.value}
+                >
+                  {em.emoji}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <input
-          type="text"
-          placeholder="Tags (comma separated, e.g. react, learning)"
-          value={tags}
-          onChange={(e) => setTags(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "16px",
-            marginBottom: "20px",
+        {/* Tags Input */}
+        <div style={{ marginBottom: "20px" }}>
+          <div style={{
+            display: "flex", flexWrap: "wrap", gap: "8px",
+            padding: "12px",
             borderRadius: "var(--radius-md)",
             border: "1px solid var(--border)",
-            fontSize: "15px",
+            backgroundColor: "var(--background-input)",
+            minHeight: "54px",
             boxSizing: "border-box"
-          }}
-        />
+          }}>
+            {tags.map((tag, idx) => (
+              <div key={idx} style={{
+                display: "inline-flex", alignItems: "center", gap: "6px",
+                padding: "4px 10px", backgroundColor: "var(--primary)", color: "white",
+                borderRadius: "20px", fontSize: "13px", fontWeight: "500"
+              }}>
+                #{tag}
+                <button type="button" onClick={() => removeTag(tag)} style={{
+                  background: "none", border: "none", color: "white", cursor: "pointer",
+                  padding: 0, display: "flex", alignItems: "center"
+                }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+              </div>
+            ))}
+            <input
+              type="text"
+              placeholder={tags.length === 0 ? "Add tags (press Enter or comma)" : ""}
+              onKeyDown={handleTagInput}
+              style={{
+                flex: 1, border: "none", background: "transparent", outline: "none",
+                minWidth: "120px", fontSize: "15px", padding: "4px 0", color: "var(--text-main)"
+              }}
+            />
+          </div>
+        </div>
 
         {/* Deadline Field */}
         <div style={{ marginBottom: "24px" }}>
@@ -471,26 +582,30 @@ function Dashboard() {
         </div>
       ) : filteredNotes.length === 0 ? (
         <div style={{ textAlign: "center", padding: "60px 20px", backgroundColor: "var(--surface)", borderRadius: "var(--radius-md)", border: "1px dashed var(--border)" }}>
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--border)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: "16px" }}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          <p style={{ color: "var(--text-muted)", margin: 0, fontSize: "1.05rem", fontWeight: "500" }}>
-            {notes.length === 0 ? "You haven't added any notes yet. Create your first thought above!" : "No notes found matching your search. Try adjusting your filters."}
+          <span style={{ fontSize: "48px", display: "block", marginBottom: "16px" }}>🌱</span>
+          <p style={{ color: "var(--text-muted)", margin: 0, fontSize: "1.1rem", fontWeight: "500", lineHeight: "1.6" }}>
+            {notes.length === 0 ? (
+              <>Your nest is empty<br/>Start capturing your thoughts.</>
+            ) : "No notes found matching your search. Try adjusting your filters."}
           </p>
         </div>
       ) : (
-        filteredNotes.map(note => (
-          <NoteCard
-            key={note._id}
-            title={note.title}
-            content={note.content}
-            category={note.category}
-            emotion={note.emotion}
-            tags={note.tags}
-            date={note.createdAt}
-            deadline={note.deadline}
-            onEdit={() => handleEditClick(note)}
-            onDelete={() => handleDeleteClick(note._id)}
-          />
-        ))
+        <div className="animate-fade-in-slide-up">
+          {filteredNotes.map(note => (
+            <NoteCard
+              key={note._id}
+              title={note.title}
+              content={note.content}
+              category={note.category}
+              emotion={note.emotion}
+              tags={note.tags}
+              date={note.createdAt}
+              deadline={note.deadline}
+              onEdit={() => handleEditClick(note)}
+              onDelete={() => handleDeleteClick(note._id)}
+            />
+          ))}
+        </div>
       )}
 
     </div>
